@@ -14,13 +14,12 @@ def get_question(question):
 def get_question_vector(positional_index, v):
     r = {}
     q_len = 0
-    w_len = 0
     for term in v:
         if term in positional_index:
             idf = positional_index[term][0]
         else:
             continue
-        tf = v[term]
+        tf = v[term][0]
         w = idf * tf
         docs = positional_index[term][1]
         for doc in docs:
@@ -29,9 +28,8 @@ def get_question_vector(positional_index, v):
             q_score = idf * docs[doc]
             r[doc] += w * q_score
             q_len += q_score
-            w_len += w**2
-    w_len = math.sqrt(w_len)
-    return r, w_len
+    q_len = math.sqrt(q_len)
+    return r, q_len
 
 
 # compute cosine similarity for every document in the vector of relevance documents and sort them
@@ -47,7 +45,10 @@ def get_relevance_docs(r, q_len, docs_len):
 # than the threshold
 # title: query split(:)[1]
 def query(q):
-    tag, q = q.split(':')
+    try:
+        tag, q = q.split(':')
+    except:
+        tag = "total"
     v = get_question(q)
     file = open(f"{tag}_positional_index.json", "r")
     d = json.load(file)

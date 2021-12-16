@@ -45,13 +45,13 @@ def doc_part(v, doc, part):
 # output: corpus for the document
 def corpus(doc, tag):
     v = {}
-    doc_part(v, doc, tag)
-    txt = doc.find("./EXTRACT")
-    if txt is not None:
-        doc_part(v, doc, "EXTRACT")
-    # txt = doc.find("./abstract")
-    # if txt is not None:
-    #     doc_part(v, doc, "abstract")
+    if tag != "total":
+        doc_part(v, doc, tag)
+    else:
+        doc_part(v, doc, "title")
+        txt = doc.find("./abstract")
+        if txt is not None:
+            doc_part(v, doc, "abstract")
     return v
 
 
@@ -95,3 +95,4 @@ def indexing(path, tag):
 def create(path):
     indexing(path, "title")
     indexing(path, "abstract")
+    indexing(path, "total")
