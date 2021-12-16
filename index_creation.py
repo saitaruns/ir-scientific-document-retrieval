@@ -5,9 +5,9 @@ from nltk.stem import PorterStemmer
 import math
 
 total_docs = 0
-inverted_index = {}
+positional_index = {}
 len_docs = {}
-d = {"inverted_index": inverted_index, "len_docs": len_docs}
+d = {"positional_index": positional_index, "len_docs": len_docs}
 stopwords = {"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out",
              "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into",
              "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the",
@@ -26,14 +26,14 @@ def doc_tokenize(doc, v):
     ps = PorterStemmer()
     tokenizer = RegexpTokenizer(r'\w+')
     txt = tokenizer.tokenize(doc)
-    for term in txt:
+    for index, term in enumerate(txt):
         term = term.lower()
         if term.isalpha() and (term not in stopwords):
             term = ps.stem(term)
             if term not in v:
-                v[term] = 0
-            v[term] += 1
-
+                v[term] = [0, []]
+            v[term][0] += 1
+            v[term][1].append(index)
 
 # building the corpus by the specific part (title/ extract/ abstract)
 def doc_part(v, doc, part):
@@ -43,39 +43,41 @@ def doc_part(v, doc, part):
 
 # input: document
 # output: corpus for the document
-def corpus(doc):
+def corpus(doc, tag):
     v = {}
-    doc_part(v, doc, "title")
+    doc_part(v, doc, tag)
     txt = doc.find("./EXTRACT")
     if txt is not None:
         doc_part(v, doc, "EXTRACT")
-    txt = doc.find("./abstract")
-    if txt is not None:
-        doc_part(v, doc, "abstract")
+    # txt = doc.find("./abstract")
+    # if txt is not None:
+    #     doc_part(v, doc, "abstract")
     return v
 
 
 # input: path to directory that contain the XML files
 # the function building inverted index from every XML RECORD in the XML files and compute vector length for them
-def add_docs_from_files(path):
+def add_docs_from_files(path, tag):
     global total_docs
     tree = ET.parse(f"{path}/sample-abstract-data.xml")
     root = tree.getroot()
     for doc in root.findall(".//article"):
         total_docs += 1
-        v = corpus(doc)
+        v = corpus(doc, tag)
         doc_id = doc.attrib["ocid"]
-        max_tf = max(v.values())
+        max_tf = max([x[0] for x in v.values()])
         for term in v:
-            if term not in inverted_index:
-                inverted_index[term] = [0, {}]
-            inverted_index[term][0] += 1
-            inverted_index[term][1][int(doc_id)] = v[term] / max_tf
-    for term in inverted_index:
-        inverted_index[term][0] = math.log2(total_docs / inverted_index[term][0])
-        idf = inverted_index[term][0]
-        for num_doc in inverted_index[term][1]:
-            tf = inverted_index[term][1][num_doc]
+            if term not in positional_index:
+                # doc-freq, tf, positions
+                positional_index[term] = [0, {}, {}]
+            positional_index[term][0] += 1
+            positional_index[term][1][int(doc_id)] = v[term][0] / max_tf
+            positional_index[term][2][int(doc_id)] = v[term][1]
+    for term in positional_index:
+        positional_index[term][0] = math.log2(total_docs / positional_index[term][0])
+        idf = positional_index[term][0]
+        for num_doc in positional_index[term][1]:
+            tf = positional_index[term][1][num_doc]
             if num_doc not in len_docs:
                 len_docs[num_doc] = 0
             len_docs[num_doc] += (idf * tf)**2
@@ -83,10 +85,13 @@ def add_docs_from_files(path):
         len_docs[doc] = math.sqrt(len_docs[doc])
 
 
-def create(path):
-    add_docs_from_files(path)
+def indexing(path, tag):
+    add_docs_from_files(path, tag)
     j = json.dumps(d)
-    f = open("inverted_index.json", "w")
+    f = open(f"{tag}_positional_index.json", "w")
     f.write(j)
     f.close()
 
+def create(path):
+    indexing(path, "title")
+    indexing(path, "abstract")
