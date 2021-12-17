@@ -72,22 +72,31 @@ def query(path,q,fl):
 
     feed = []
     print(f"{len(r.keys())} results found\n\n")
+    cnt = 5
     for docid in r.keys():
-        doc = root.find(f".//article[@ocid='{docid}']")
-        title = doc.find("./title").text
-        abstract = doc.find("./abstract").text
-        print(i,". Title:",title,end="\n\n")
-        print("Abstract:")
-        print(abstract)
-        print("-------------------------------------------------------------------")
-        i+=1
-        if fl==0:
-            feed.append(feedBack())
+        if cnt>0:
+            doc = root.find(f".//article[@ocid='{docid}']")
+            title = doc.find("./title").text
+            abstract = doc.find("./abstract").text
+            print(i,". Title:",title,end="\n\n")
+            print("Abstract:")
+            print(abstract)
+            print("-------------------------------------------------------------------")
+            i+=1
+            if fl==0:
+                feed.append(feedBack())
+        else:
+            x = input("Press Y/y to print more results or N/n to exit")
+            if x == "Y" or x == "y":
+                cnt = 10
+            else:
+                break
+        cnt-=1
     f = open("ranked_query_docs.txt", "w")
-    max_val = list(r.values())[0] #if you want only the most relavant documents
+    # max_val = list(r.values())[0] #if you want only the most relavant documents
     for doc in r:
-        if r[doc] < max_val/4:
-            break
+        # if r[doc] < max_val/4:
+        #     break
         f.write(doc+"\n")
     f.close()
     file.close()

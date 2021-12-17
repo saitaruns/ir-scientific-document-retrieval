@@ -58,8 +58,6 @@ def corpus(doc, tag):
     return v
 
 
-# input: path to directory that contain the XML files
-# the function building inverted index from every XML RECORD in the XML files and compute vector length for them
 def add_docs_from_files(path, tag, filename):
     global total_docs
     # doc_list = ['sample-abstract-data', 'sample-fulltext-data']
@@ -73,7 +71,10 @@ def add_docs_from_files(path, tag, filename):
         total_docs += 1
         v = corpus(doc, tag)
         doc_id = doc.attrib["ocid"]
-        max_tf = max([x[0] for x in v.values()])
+        try:
+            max_tf = max([x[0] for x in v.values()])
+        except:
+            continue
         for term in v:
             if term not in positional_index:
                 # doc-freq, tf, positions
