@@ -68,6 +68,7 @@ def add_docs_from_files(path, tag):
     else:
         tree = ET.parse(f"{path}/sample-abstract-data.xml")
     root = tree.getroot()
+    print(f"Indexing {tag}")
     for doc in root.findall(".//article"):
         total_docs += 1
         v = corpus(doc, tag)

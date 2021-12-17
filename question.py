@@ -44,18 +44,6 @@ def get_relevance_docs(r, q_len, docs_len):
     return dict(sorted(r.items(), key=lambda item: item[1], reverse=True))
 
 
-# call the rest of the functions in this file and writing to output file all relevance documents with score higher
-# than the threshold
-# title: query split(:)[1]
-
-# def queryProcess(q):
-#     try:
-#         tag, q = q.split(':')
-#     except:
-#         tag = "total"
-    
-#     return 
-
 def feedBack():
     f = input("Is the above result relavant?(Y/N)")
     if(f=="Y" or f=="y"):
@@ -88,17 +76,18 @@ def query(path,q,fl):
         doc = root.find(f".//article[@ocid='{docid}']")
         title = doc.find("./title").text
         abstract = doc.find("./abstract").text
-        print(i,".  Title:\t",title,end="\n\n")
-        print("  Abstract:\n",abstract)
+        print(i,". Title:",title,end="\n\n")
+        print("Abstract:")
+        print(abstract)
         print("-------------------------------------------------------------------")
         i+=1
         if fl==0:
             feed.append(feedBack())
     f = open("ranked_query_docs.txt", "w")
-    # max_val = list(r.values())[0] #if you want only the most relavant documents
+    max_val = list(r.values())[0] #if you want only the most relavant documents
     for doc in r:
-        # if r[doc] < max_val/4:
-        #     break
+        if r[doc] < max_val/4:
+            break
         f.write(doc+"\n")
     f.close()
     file.close()
