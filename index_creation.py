@@ -49,9 +49,12 @@ def corpus(doc, tag):
         doc_part(v, doc, tag)
     else:
         doc_part(v, doc, "title")
-        txt = doc.find("./abstract")
+        txt = doc.find("./fulltext")
+        segment = txt.findall(".//segment")
         if txt is not None:
-            doc_part(v, doc, "abstract")
+            for seg in segment:
+                doc_tokenize(seg.text, v)
+                # doc_part(v, seg, "segment")
     return v
 
 
@@ -59,7 +62,11 @@ def corpus(doc, tag):
 # the function building inverted index from every XML RECORD in the XML files and compute vector length for them
 def add_docs_from_files(path, tag):
     global total_docs
-    tree = ET.parse(f"{path}/sample-abstract-data.xml")
+    # doc_list = ['sample-abstract-data', 'sample-fulltext-data']
+    if tag == 'total':
+        tree = ET.parse(f"{path}/sample-fulltext-data.xml")
+    else:
+        tree = ET.parse(f"{path}/sample-abstract-data.xml")
     root = tree.getroot()
     for doc in root.findall(".//article"):
         total_docs += 1
