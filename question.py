@@ -56,7 +56,17 @@ def get_relevance_docs(r, q_len, docs_len):
     
 #     return 
 
-def query(path,q):
+def feedBack():
+    f = input("Is the above result relavant?(Y/N)")
+    if(f=="Y" or f=="y"):
+        return "R"
+    elif(f=="N" or f=="n"):
+        return "NR"
+    else:
+        print("Invalid Input. Yy/Nn are valid\n")
+        return feedBack()
+
+def query(path,q,fl):
     try:
         tag, q = q.split(':')
     except:
@@ -71,22 +81,25 @@ def query(path,q):
     tree = ET.parse(f"{path}/sample-abstract-data.xml")
     root = tree.getroot()
     i = 1
+
+    feed = []
+    print(f"{len(r.keys())} results found\n\n")
     for docid in r.keys():
         doc = root.find(f".//article[@ocid='{docid}']")
         title = doc.find("./title").text
         abstract = doc.find("./abstract").text
-        print(i,"Title\n",title,end="\n")
-        print(" Abstract\n",abstract)
+        print(i,".  Title:\t",title,end="\n\n")
+        print("  Abstract:\n",abstract)
         print("-------------------------------------------------------------------")
         i+=1
-    
-    
-        # print(topic)
+        if fl==0:
+            feed.append(feedBack())
     f = open("ranked_query_docs.txt", "w")
-    # max_val = list(r.values())[0]
+    # max_val = list(r.values())[0] #if you want only the most relavant documents
     for doc in r:
         # if r[doc] < max_val/4:
         #     break
         f.write(doc+"\n")
     f.close()
     file.close()
+    return feed
