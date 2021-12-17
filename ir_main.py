@@ -5,4 +5,4 @@ from index_creation import create
 if sys.argv[1] == 'create_index':
     create(sys.argv[2])
 elif sys.argv[1] == "query":
-    query(sys.argv[2])
+    query("data",sys.argv[2])
