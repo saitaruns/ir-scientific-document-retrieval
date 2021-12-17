@@ -35,7 +35,7 @@ def doc_tokenize(doc, v):
             v[term][0] += 1
             v[term][1].append(index)
 
-# building the corpus by the specific part (title/ extract/ abstract)
+# building the corpus by the specific part (title/ abstract/ fulltext)
 def doc_part(v, doc, part):
     txt = doc.findall(f"./{part}")
     doc_tokenize(txt[0].text, v)
@@ -60,13 +60,13 @@ def corpus(doc, tag):
 
 # input: path to directory that contain the XML files
 # the function building inverted index from every XML RECORD in the XML files and compute vector length for them
-def add_docs_from_files(path, tag):
+def add_docs_from_files(path, tag, filename):
     global total_docs
     # doc_list = ['sample-abstract-data', 'sample-fulltext-data']
     if tag == 'total':
-        tree = ET.parse(f"{path}/sample-fulltext-data.xml")
+        tree = ET.parse(f"{path}/{filename}/{filename}-fulltext-v1.2.1.xml")
     else:
-        tree = ET.parse(f"{path}/sample-abstract-data.xml")
+        tree = ET.parse(f"{path}/{filename}/{filename}-abst-v1.2.1.xml")
     root = tree.getroot()
     print(f"Indexing {tag}")
     for doc in root.findall(".//article"):
@@ -93,14 +93,14 @@ def add_docs_from_files(path, tag):
         len_docs[doc] = math.sqrt(len_docs[doc])
 
 
-def indexing(path, tag):
-    add_docs_from_files(path, tag)
+def indexing(path, tag, filename):
+    add_docs_from_files(path, tag, filename)
     j = json.dumps(d)
-    f = open(f"{tag}_positional_index.json", "w")
+    f = open(f"index/{filename}_{tag}_positional_index.json", "w")
     f.write(j)
     f.close()
 
-def create(path):
-    indexing(path, "title")
-    indexing(path, "abstract")
-    indexing(path, "total")
+def create(path, filename):
+    indexing(path, "title", filename)
+    indexing(path, "abstract", filename)
+    indexing(path, "total", filename)

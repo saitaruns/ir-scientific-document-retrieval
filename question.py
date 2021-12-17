@@ -60,13 +60,13 @@ def query(path,q,fl):
     except:
         tag = "total"
     v = get_question(q)
-    file = open(f"{tag}_positional_index.json", "r")
+    file = open(f"index/{path}_{tag}_positional_index.json", "r")
     d = json.load(file)
     positional_index = d["positional_index"]
     r, q_len = get_question_vector(positional_index, v)
     docs_len = d["len_docs"]
     r = get_relevance_docs(r, q_len, docs_len)
-    tree = ET.parse(f"{path}/sample-abstract-data.xml")
+    tree = ET.parse(f"data/{path}/{path}-abst-v1.2.1.xml")
     root = tree.getroot()
     i = 1
 
