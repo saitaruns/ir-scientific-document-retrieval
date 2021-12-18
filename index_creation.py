@@ -1,8 +1,11 @@
 import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ETree
 import json
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 import math
+
+#tree = ET.parse("D:\IIITS\IR\ir-scientific-document-retrieval\data\elsevier\elsevier-fulltext-v1.2.1.xml",parser=ETree.XMLParser(encoding="utf-8"))
 
 total_docs = 0
 positional_index = {}
@@ -54,20 +57,21 @@ def corpus(doc, tag):
         if txt is not None:
             for seg in segment:
                 doc_tokenize(seg.text, v)
-                # doc_part(v, seg, "segment")
     return v
 
 
 def add_docs_from_files(path, tag, filename):
     global total_docs
     # doc_list = ['sample-abstract-data', 'sample-fulltext-data']
-    if tag == 'total':
-        tree = ET.parse(f"{path}/{filename}/{filename}-fulltext-v1.2.1.xml")
+    parser = ETree.XMLParser(encoding="utf-8")
+    if tag == "total":
+        tree = ET.parse(f"{path}/{filename}/{filename}-fulltext-v1.2.1.xml",parser=parser)
     else:
-        tree = ET.parse(f"{path}/{filename}/{filename}-abst-v1.2.1.xml")
+        tree = ET.parse(f"{path}/{filename}/{filename}-abst-v1.2.1.xml",parser=parser)
     root = tree.getroot()
     print(f"Indexing {tag}")
     for doc in root.findall(".//article"):
+        print(f"Indexing {doc.attrib['ocid']}")
         total_docs += 1
         v = corpus(doc, tag)
         doc_id = doc.attrib["ocid"]

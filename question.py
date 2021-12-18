@@ -72,9 +72,9 @@ def query(path,q,fl):
 
     feed = []
     print(f"{len(r.keys())} results found\n\n")
-    cnt = 5
+    cnt = 10
     for docid in r.keys():
-        if cnt>0:
+        if cnt>=0:
             doc = root.find(f".//article[@ocid='{docid}']")
             title = doc.find("./title").text
             abstract = doc.find("./abstract").text
@@ -86,7 +86,7 @@ def query(path,q,fl):
             if fl==0:
                 feed.append(feedBack())
         else:
-            x = input("Press Y/y to print more results or N/n to exit")
+            x = input("Press Y/y to print more results or anything to exit")
             if x == "Y" or x == "y":
                 cnt = 10
             else:
